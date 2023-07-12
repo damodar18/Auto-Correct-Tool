@@ -1,0 +1,53 @@
+import re
+import subprocess
+
+# Check if 'spellchecker' library is installed, install it if not
+try:
+    import spellchecker
+except ImportError:
+    subprocess.check_call(['pip', 'install', 'pyspellchecker'])
+
+from spellchecker import SpellChecker
+
+spell=SpellChecker()
+
+class AutoCorrect:
+    def init(self, word_list):
+        self.word_list = word_list
+        self.word_frequency ={}
+        self.build_word_frequency=()
+        
+        #For getting the dictinary
+    def build_word_frequency(self): 
+        self.word_frequency.load_words(['google', 'microsoft'])
+
+    def correct(self, text):
+        words = re.findall(r'\w+', text.lower())
+        corrected_text = []
+        for word in words:
+            corrected_word = spell.correction(word)
+            corrected_text.append(corrected_word)
+        return ' '.join(corrected_text)
+
+    def correct_word(self, word):
+        if word in self.word_frequency:
+            return word
+
+        # Check if the word is in the spell checker's dictionary
+        if spell.known([word]):
+            return word
+
+        # Get the most likely suggestion from the spell checker
+        suggestions = spell.correction(word)
+        if suggestions:
+            return suggestions
+
+        return word
+
+
+word_list = ['apple', 'banana', 'cherry', 'durian', 'are']
+auto_correct = AutoCorrect()
+
+text = input("Enter the text you want to correct: ")
+corrected_text = auto_correct.correct(text)
+print("Corrected text:", corrected_text
